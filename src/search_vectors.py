@@ -41,12 +41,22 @@ vector_query = VectorizedQuery(
     fields="content_vector"
 )
 
-results = search_client.search(
-    search_text=None,
+results = list(search_client.search(
+    search_text=question,
     vector_queries=[vector_query],
-    top=10
+    top=10,
+    query_type="semantic",
+    semantic_configuration_name="semantic-config"
+)
 )
 
 for result in results:
     print(f"Content: {result['content']}")
     print(f"Search score: {result['@search.score']}")
+    print(f"Reranker score: {result.get('@search.reranker_score')}")
+
+context = "\n\n".join(
+    result["content"] for result in results[:3]
+)
+
+print(context)
